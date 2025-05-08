@@ -68,6 +68,7 @@ def predict_text():
     if not data or "text" not in data:
         return jsonify({"error": "Missing 'text' in request body"}), 400
 
+    domain = data["domain"]
     raw_text = data["text"]
     processed = preprocess_text(raw_text)
     vector = vectorizer.transform([processed])
@@ -83,6 +84,20 @@ def predict_text():
     else:
         idx = int(text_model.predict(vector)[0])
         confidence = None
+
+    # Call an external API to localhost:8000/api/items
+    try:
+        response = requests.post("http://localhost:8000/api/items/", json={
+            "url": domain,
+            "score": confidence,
+            "class": "good" if idx == 2 else "bad"
+        })
+        if response.status_code == 200:
+            api_result = response.json()
+        else:
+            api_result = {"error": f"API call failed with status code {response.status_code}"}
+    except Exception as e:
+        api_result = {"error": f"API call failed: {str(e)}"}
 
     return jsonify({
         "input": raw_text,

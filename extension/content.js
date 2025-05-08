@@ -24,7 +24,7 @@ async function checkTextForHate(text, element) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       mode: 'cors',
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, domain: currentDomain }),
     });
 
     const data = await response.json();
@@ -55,6 +55,7 @@ async function checkImageForNSFW(imageUrl, imgElement) {
   try {
     const formData = new FormData();
     formData.append("image_url", imageUrl);
+    formData.append("domain", currentDomain);
 
     const response = await fetch('http://127.0.0.1:5000/predict-image', {
       method: 'POST',
@@ -68,7 +69,7 @@ async function checkImageForNSFW(imageUrl, imgElement) {
     // 2: neutral
     // 4: sexy
 
-    if (data.class_index === 1 || data.class_index === 4) {
+    if (data.predicted_class == "sexy" || data.predicted_class == "hentai" || data.predicted_class == "porn") {
       console.log("NSFW detected:", imageUrl);
       console.log("NSFW confidence:", data.confidence);
       imgElement.style.filter = "blur(5px)";
