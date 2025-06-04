@@ -54,8 +54,8 @@ export default function Home() {
         </div>
       </div>)}
       <div className="min-h-[76vh] w-full">
-        {data.length > 0 && data.sort((a,b) => a.ranking - b.ranking).filter(website => website.url.includes(search) || website.title.includes(search)).length > 0 && <WebsitesList search={search} data={data} />}
-        {data.length > 0 && data.sort((a,b) => a.ranking - b.ranking).filter(website => website.url.includes(search) || website.title.includes(search)).length === 0 && (
+        {data !== null && data.length > 0 && data.sort((a,b) => a.ranking - b.ranking).filter(website => website.url.includes(search) || website.title.includes(search)).length > 0 && <WebsitesList search={search} data={data} />}
+        {data !== null && data.length > 0 && data.sort((a,b) => a.ranking - b.ranking).filter(website => website.url.includes(search) || website.title.includes(search)).length === 0 && (
           <div className="w-full h-[76vh] flex items-center justify-center px-5">
             <div className="flex flex-col items-center gap-3 select-none">
               {isValidLink ? (

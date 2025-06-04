@@ -16,7 +16,7 @@ export default function Details({website}) {
                 <div className="w-full md:w-[40%]">
                     <Link href={`${website.url}`} target="_blank">
                         <div className="h-auto w-full shadow-xl rounded-[13px] overflow-hidden mt-5">
-                            <Image src={website.image || '/defualt.jpeg'} alt={website.title || "Website title"} width={1440} height={1440} />
+                            <Image src={website.image || '/default.jpeg'} alt={website.title || "Website title"} width={1440} height={1440} />
                         </div>
                     </Link>
                     <div className="mt-10 px-5 flex flex-col items-center gap-5">

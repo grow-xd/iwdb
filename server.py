@@ -109,25 +109,49 @@ def predict_text():
 
 @app.route('/predict-image', methods=['POST'])
 def predict_image():
-    if 'image_url' in request.form:
-        image_url = request.form['image_url']
-        try:
+    try:
+        # Case 1: Direct image URL
+        if 'image_url' in request.form:
+            image_url = request.form['image_url']
+            domain = request.form.get("domain", "")
             response = requests.get(image_url)
             image = PILImage.create(BytesIO(response.content))
 
-            pred_class, pred_idx, probs = learn.predict(image)
-            confidence = float(probs[pred_idx])
+        # Case 2: Uploaded image blob (from <video>)
+        elif 'image' in request.files:
+            domain = request.form.get("domain", "")
+            image_file = request.files['image']
+            image = PILImage.create(image_file)
 
-            return jsonify({
-                "predicted_class": str(pred_class),
-                "class_index": int(pred_idx),
-                "confidence": confidence
+        else:
+            return jsonify({"error": "Missing 'image_url' or 'image' in form-data"}), 400
+
+        pred_class, pred_idx, probs = learn.predict(image)
+        confidence = float(probs[pred_idx])
+
+        # Call an external API to localhost:8000/api/items
+        try:
+            response = requests.post("http://localhost:8000/api/items/", json={
+                "url": domain,
+                "score": confidence,
+                "class": "good" if (pred_class=="drawing" or pred_class=="neutral") else "bad"
             })
-
+            if response.status_code == 200:
+                api_result = response.json()
+            else:
+                api_result = {"error": f"API call failed with status code {response.status_code}"}
         except Exception as e:
-            return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
-    else:
-        return jsonify({"error": "Missing 'image_url' in form-data"}), 400
+            api_result = {"error": f"API call failed: {str(e)}"}
+
+        return jsonify({
+            "predicted_class": str(pred_class),
+            "class_index": int(pred_idx),
+            "confidence": confidence
+        })
+        
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to process image: {str(e)}"}), 500
 
 
 # === Run App ===

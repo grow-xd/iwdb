@@ -5,11 +5,13 @@
     "description": "Detect and extract information from web pages.",
     "permissions": [
       "activeTab",
+      "scripting",
       "tabs",
       "storage",
       "contextMenus",
       "file:///*"
     ],
+    "host_permissions": ["<all_urls>"],
     "background": {
       "scripts": ["background.js"],
       "persistent": true
